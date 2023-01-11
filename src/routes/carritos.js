@@ -27,12 +27,18 @@ cartsRouter.post('/', async (req, res) => {
 })
 
 cartsRouter.delete('/:id', async (req, res) => {
-    const cartId = parseInt(req.params.id);
+    const cartId = req.params.id;
     res.json(await carritosApi.deleteById(cartId));
 })
 
+cartsRouter.get('/:id', async (req, res) => {
+    const cartId = req.params.id;
+    const response = await carritosApi.getById(cartId);
+    res.json(response);
+})
+
 cartsRouter.get('/:id/productos', async (req, res) => {
-    const cartId = parseInt(req.params.id);
+    const cartId = req.params.id;
     const carritoResponse = await carritosApi.getById(cartId);
     if(carritoResponse.error){
         res.json(carritoResponse);
@@ -49,8 +55,8 @@ cartsRouter.get('/:id/productos', async (req, res) => {
 })
 
 cartsRouter.post('/:id/productos', async (req, res) => {
-    const cartId = parseInt(req.params.id);
-    const productId = parseInt(req.body.id);
+    const cartId = req.params.id;
+    const productId = req.body.id;
     const carritoResponse = await carritosApi.getById(cartId);
     if(carritoResponse.error){
         res.json({message:`El carrito con id: ${cartId} no fue encontrado`});
@@ -67,8 +73,8 @@ cartsRouter.post('/:id/productos', async (req, res) => {
 })
 
 cartsRouter.delete('/:id/productos/:idProd', async (req, res) => {
-    const cartId = parseInt(req.params.id);
-    const productId = parseInt(req.params.idProd);
+    const cartId = req.params.id;
+    const productId = req.params.idProd;
     const carritoResponse = await carritosApi.getById(cartId);
     if(carritoResponse.error){
         res.json({message:`El carrito con id: ${cartId} no fue encontrado`});

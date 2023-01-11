@@ -20,7 +20,8 @@ productsRouter.get('/', async (req, res) => {
 })
 
 productsRouter.get('/:id', async (req, res) => {
-    const productId = parseInt(req.params.id);
+    const productId = req.params.id;
+    console.log(productId)
     const response = await productosApi.getById(productId);
     res.json(response);
 })

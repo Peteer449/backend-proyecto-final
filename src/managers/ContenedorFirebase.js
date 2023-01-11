@@ -1,6 +1,6 @@
 import {readFileSync} from "fs"
 import admin from "firebase-admin"
-const serviceAccount = JSON.parse(readFileSync("firebaseKey.json"))
+const serviceAccount = JSON.parse(readFileSync("../firebaseKey.json"))
 admin.initializeApp(
   {
     credential:admin.credential.cert(serviceAccount),
@@ -42,8 +42,16 @@ class ContenedorFirebase{
 
     async save(product){
         try {
-            let doc = this.collection.doc()
-            await doc.create({product})
+            if(product.price){
+                let {title,price}=product
+                price=parseInt(price)
+                let doc = this.collection.doc()
+                await doc.create({title,price})
+            }else if(product.timestamp){
+                let doc = this.collection.doc()
+                await doc.create({product})
+            }
+            return this.getAll()
         } catch (error) {
             return {message:`Error al guardar: ${error}`};
         }
