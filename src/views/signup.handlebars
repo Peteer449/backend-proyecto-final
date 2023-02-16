@@ -1,0 +1,25 @@
+<h2 class="mx-5 my-2">Formulario de Registro</h2>
+<div class="mx-5 my-2">
+  {{#if error}}
+    <p class="bg-danger text-white">{{error}}</p>
+  {{/if}}
+  <form action="/signup" method="POST">
+      <label>Nombre:</label>
+      <input class="form-control" type="text" name="name" placeholder="Ingresa tu nombre"/>
+      <label>Direccion:</label>
+      <input class="form-control" type="text" name="adress" placeholder="Ingresa tu direccion"/>
+      <label>Edad:</label>
+      <input class="form-control" type="number" name="age" placeholder="Ingresa tu edad"/>
+      <label>Telefono:</label>
+      <input class="form-control" type="number" name="phone" placeholder="Ingresa tu numero de telefono"/>
+      <label>Avatar:</label>
+      <input class="form-control" type="text" name="image" placeholder="Ingresa tu avatar"/>
+      <label>Email:</label>
+      <input class="form-control" type="text" name="mail" placeholder="Ingresa tu Email"/>
+      <label>Contraseña:</label>
+      <input class="form-control" type="password" name="password" placeholder="Ingresa la contraseña"/>
+      <button type="submit" class="btn btn-info my-3">Registrarse</button>
+  </form>
+  <hr>
+  <a href="/login">Ya tiene una cuenta?, inicia sesión</a>
+</div>

@@ -4,12 +4,6 @@ import { ContenedorDaoCarts, ContenedorDaoProductos } from "../daos/index.js";
 import { ContenedorArchivo } from "../managers/ContenedorArchivo.js";
 import { ContenedorMysql } from "../managers/ContenedorMysql.js";
 
-//manager carritos
-// const productosApi = new ContenedorArchivo(options.fileSystem.pathProducts);
-// const carritosApi = new ContenedorArchivo(options.fileSystem.pathCarts);
-// const productosApi = new ContenedorMysql(options.sqliteDB, "productos");
-// const carritosApi = new ContenedorMysql(options.sqliteDB, "carritos");
-
 const productosApi = ContenedorDaoProductos;
 const carritosApi = ContenedorDaoCarts;
 

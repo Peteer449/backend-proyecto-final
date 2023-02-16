@@ -1,0 +1,15 @@
+<h1>Formulario de ingreso</h1>
+<div>
+  {{#if error}}
+    <p class="text-white bg-danger">{{error}}</p>
+  {{/if}}
+  <form action="/login" method="post">
+    <label>Email:</label>
+    <input type="text" placeholder="Ingresa tu Email" name="mail"/>
+    <label>Contraseña:</label>
+    <input type="text" placeholder="Ingresa tu contraseña" name="password"/>
+    <button type="submit">Iniciar sesión</button>
+  </form>
+  <hr>
+  <a href="/signup">Todavía no tienes una cuenta?, registrate</a>
+</div>

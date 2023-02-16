@@ -5,10 +5,6 @@ import { ContenedorArchivo } from "../managers/ContenedorArchivo.js";
 import { ContenedorMysql } from "../managers/ContenedorMysql.js";
 
 import { ContenedorDaoProductos } from "../daos/index.js";
-
-//products manager
-// const productosApi = new ContenedorArchivo(options.fileSystem.pathProducts);
-// const productosApi = new ContenedorMysql(options.sqliteDB, "productos");
 const productosApi = ContenedorDaoProductos;
 
 // products router
@@ -21,7 +17,6 @@ productsRouter.get('/', async (req, res) => {
 
 productsRouter.get('/:id', async (req, res) => {
     const productId = req.params.id;
-    console.log(productId)
     const response = await productosApi.getById(productId);
     res.json(response);
 })
