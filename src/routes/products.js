@@ -11,14 +11,14 @@ const productosApi = ContenedorDaoProductos;
 const productsRouter = express.Router();
 
 productsRouter.get('/', async (req, res) => {
-    const response = await productosApi.getAll()
-    res.json(response)
+    const allProducts = await productosApi.getAll()
+    res.render("products",{allProducts})
 })
 
 productsRouter.get('/:id', async (req, res) => {
     const productId = req.params.id;
     const response = await productosApi.getById(productId);
-    res.json(response);
+    res.render("products",{response})
 })
 
 productsRouter.post('/', checkAdminRole, async (req, res) => {
@@ -34,8 +34,9 @@ productsRouter.put('/:id', checkAdminRole, async (req, res) => {
 
 productsRouter.delete('/:id', checkAdminRole, async (req, res) => {
     const productId = parseInt(req.params.id);
-    const response = await productosApi.deleteById(productId);
-    res.json(response);
+    await productosApi.deleteById(productId);
+    const allProducts = await productosApi.getAll()
+    res.render("products",{allProducts})
 })
 
 export {productsRouter}

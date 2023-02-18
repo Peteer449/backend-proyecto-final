@@ -14,6 +14,15 @@
       <td>{{this.title}}</td>
       <td>{{this.price}}</td>
       <td><img src={{this.image}} height="100px"/></td>
+      <td>
+        <form action="/api/carritos" method="POST">
+          <input type="hidden" id="product" name="title" value={{this.title}}>
+          <input type="hidden" id="id" name="id" value={{this.id}}>
+          <input type="hidden" id="price" name="price" value={{this.price}}>
+          <input type="hidden" id="image" name="image" value={{this.image}}>
+          <button type="submit" class="btn btn-info">Agregar al carrito</button>
+        </form>
+      </td>
     </tr>
     {{/each}}
   </tbody>

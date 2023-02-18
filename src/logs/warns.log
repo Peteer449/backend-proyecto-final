@@ -6,3 +6,29 @@
 [2023-02-16T13:13:42.239] [WARN] prod - /socket.io/socket.io.js es una ruta inexistente
 [2023-02-16T13:13:45.660] [WARN] prod - /socket.io/socket.io.js es una ruta inexistente
 [2023-02-16T13:13:51.281] [WARN] prod - /socket.io/socket.io.js es una ruta inexistente
+[2023-02-16T14:48:34.838] [WARN] prod - /api/height=%22100px%22/ es una ruta inexistente
+[2023-02-16T15:11:56.288] [WARN] prod - /api/height=%22100px%22/ es una ruta inexistente
+[2023-02-16T15:12:45.339] [WARN] prod - /api/height=%22100px%22/ es una ruta inexistente
+[2023-02-16T15:17:07.935] [WARN] prod - /api/height=%22100px%22/ es una ruta inexistente
+[2023-02-16T15:17:47.893] [ERROR] prod - Conexion fallida
+[2023-02-16T15:19:51.158] [WARN] prod - /api/height=%22100px%22/ es una ruta inexistente
+[2023-02-16T15:20:32.051] [WARN] prod - /api/height=%22100px%22/ es una ruta inexistente
+[2023-02-16T15:21:41.625] [WARN] prod - /api/height=%22100px%22/ es una ruta inexistente
+[2023-02-16T15:22:44.664] [WARN] prod - /api/height=%22100px%22/ es una ruta inexistente
+[2023-02-16T15:23:18.244] [WARN] prod - /api/height=%22100px%22/ es una ruta inexistente
+[2023-02-16T15:38:33.937] [WARN] prod - /api/height=%22100px%22/ es una ruta inexistente
+[2023-02-16T15:39:22.978] [WARN] prod - /api/height=%22100px%22/ es una ruta inexistente
+[2023-02-16T15:41:22.198] [WARN] prod - /api/height=%22100px%22/ es una ruta inexistente
+[2023-02-16T15:43:47.792] [WARN] prod - /api/height=%22100px%22/ es una ruta inexistente
+[2023-02-16T15:44:58.292] [WARN] prod - /api/height=%22100px%22/ es una ruta inexistente
+[2023-02-17T09:34:49.181] [WARN] prod - /favicon.ico es una ruta inexistente
+[2023-02-17T09:36:26.418] [WARN] prod - /api/height=%22100px%22/ es una ruta inexistente
+[2023-02-17T10:10:40.515] [ERROR] prod - Conexion fallida
+[2023-02-17T10:16:26.209] [ERROR] prod - Conexion fallida
+[2023-02-17T10:18:17.939] [ERROR] prod - Conexion fallida
+[2023-02-17T10:26:13.445] [ERROR] prod - Conexion fallida
+[2023-02-17T10:28:17.318] [ERROR] prod - Conexion fallida
+[2023-02-17T10:29:40.662] [ERROR] prod - Conexion fallida
+[2023-02-17T10:30:01.925] [ERROR] prod - Conexion fallida
+[2023-02-17T10:30:16.225] [ERROR] prod - Conexion fallida
+[2023-02-17T10:31:35.531] [ERROR] prod - Conexion fallida

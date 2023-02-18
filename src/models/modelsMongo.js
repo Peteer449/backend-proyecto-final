@@ -10,7 +10,7 @@ const ProductSchema = new mongoose.Schema({
 })
 const cartCollection = "carritos"
 
-const cartchema = new mongoose.Schema({
+const cartSchema = new mongoose.Schema({
   id:{type:Number,require:true,max:100},
   products:{type:Array,require:true},
   timestamp:{type:Number,require:true,max:100}
@@ -51,6 +51,6 @@ const UserSchema = new mongoose.Schema({
 
 export const UserModel = mongoose.model(userCollection,UserSchema)
 
-export const carritos = mongoose.model(cartCollection,cartchema)
+export const carritos = mongoose.model(cartCollection,cartSchema)
 
 export const productos = mongoose.model(productsCollection,ProductSchema)

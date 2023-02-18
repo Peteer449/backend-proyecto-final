@@ -40,7 +40,7 @@ class ContenedorFirebase{
         }
     }
 
-    async save(product){
+    async save(product,bool){
         try {
             if(product.price){
                 let {title,price}=product
@@ -48,8 +48,24 @@ class ContenedorFirebase{
                 let doc = this.collection.doc()
                 await doc.create({title,price})
             }else if(product.timestamp){
-                let doc = this.collection.doc()
-                await doc.create({product})
+                if(bool){
+                    const snapshot =await this.collection.get()
+                    let response = snapshot.docs;
+                    let results = response.map(elm=>{
+                        return {
+                            id:elm.id,
+                            ...elm.data()
+                        }
+                    });
+                    let oldProducts = results[0].product.products
+                    let doc = this.collection.doc(`${results[0].id}`)
+                    let newProduct=product.products[0]
+                    oldProducts.push(newProduct)
+                    await doc.update({product:{products:oldProducts,timestamp:product.timestamp}})
+                }else{
+                    let doc = this.collection.doc()
+                    await doc.create({product})
+                }
             }
             return this.getAll()
         } catch (error) {

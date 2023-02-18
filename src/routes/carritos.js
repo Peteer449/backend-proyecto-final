@@ -1,8 +1,7 @@
 import express from "express";
-import { options } from "../config/databaseConfig.js";
 import { ContenedorDaoCarts, ContenedorDaoProductos } from "../daos/index.js";
-import { ContenedorArchivo } from "../managers/ContenedorArchivo.js";
-import { ContenedorMysql } from "../managers/ContenedorMysql.js";
+import { transporter,adminEmail } from "../messages/email.js"
+import {twilioClient, twilioPhone, adminPhone} from "../messages/wpp.js"
 
 const productosApi = ContenedorDaoProductos;
 const carritosApi = ContenedorDaoCarts;
@@ -11,14 +10,64 @@ const carritosApi = ContenedorDaoCarts;
 const cartsRouter = express.Router();
 
 cartsRouter.get('/', async (req, res) => {
-    const response = await carritosApi.getAll();
-    res.json(response);
+    const allProducts = await carritosApi.getAll();
+    let totalPrice=0
+    const allProductsMaped=allProducts.map(e=>e.product.products)
+    allProductsMaped[0].map(i=>totalPrice += parseInt(i.price))
+    let allProductsMapedArray = allProductsMaped[0]
+    console.log(allProductsMapedArray)
+    res.render("carrito",{allProductsMapedArray,totalPrice})
 })
 
 cartsRouter.post('/', async (req, res) => {
-    const response = await carritosApi.save({ products: [], timestamp: new Date().toLocaleDateString() });
-    res.json(response);
+    let {id,title,price,image} = req.body
+    let allProducts = await carritosApi.getAll();
+    let response
+    if(allProducts.length !== 0){
+        response = await carritosApi.save({ products: [{id,title,price,image}], timestamp: new Date().toLocaleDateString()},true);
+    }else{
+        response = await carritosApi.save({ products: [{id,title,price,image}], timestamp: new Date().toLocaleDateString()});
+    }
+    allProducts = await carritosApi.getAll();
+    const allProductsMaped=allProducts.map(e=>e.product.products)
+    let totalPrice=0
+    allProductsMaped[0].map(i=>totalPrice += parseInt(i.price))
+    let allProductsMapedArray = allProductsMaped[0]
+    res.render("carrito",{allProductsMapedArray,totalPrice})
 })
+
+cartsRouter.post("/comprar", async (req, res) => {
+    let {name,phone,mail} = req.session.user
+    const allProducts = await carritosApi.getAll();
+    try {
+        await transporter.sendMail({
+            from: "server app Node",
+            to: adminEmail,
+            subject: "Nueva compra",
+            html: `<div class="d-flex justify-content-evenly">
+        <h1>Nuevo pedido de: ${name}  (${mail})</h1>
+        <h3>${allProducts.map(e=>e.product.products)[0].map(j=>j.title)} <h3> ${allProducts.map(e=>e.product.products)[0].map(j=>j.price)}</h3></h3>
+      </div>`
+        })
+        await twilioClient.messages.create({
+            from: twilioPhone,
+            to: adminPhone,
+            body:`
+        Nuevo pedido de: ${name}  (${mail})
+        ${allProducts.map(e=>e.product.products)[0].map(j=>j.title)} ${allProducts.map(e=>e.product.products)[0].map(j=>j.price)}
+        `
+        })
+        await twilioClient.messages.create({
+            from: twilioPhone,
+            to: phone,
+            body: `Pedido recibido`
+        })
+        res.render("compra",{allProducts})
+    } catch (error) {
+        res.send(error)
+    }
+})
+
 
 cartsRouter.delete('/:id', async (req, res) => {
     const cartId = req.params.id;

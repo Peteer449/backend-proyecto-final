@@ -31,8 +31,7 @@ app.use(express.static("./views"))
 app.use(cookieParser())
 app.use(flash())
 
-app.use('/api/productos', productsRouter);
-app.use('/api/carritos', cartsRouter);
+
 
 /*
 
@@ -66,6 +65,8 @@ mongoose.connect(envConfig.BASE_DE_DATOS_CODERDB,{
 
 app.use(passport.initialize())
 app.use(passport.session())
+app.use('/api/productos', productsRouter);
+app.use('/api/carritos', cartsRouter);
 
 passport.serializeUser((user,done)=>{
   return done(null,user.id)
@@ -88,22 +89,6 @@ server.on('error', error => console.log(`Error in server ${error}`));
 -------ROUTES-------
 
 */
-app.use((req, res,next) =>{
-  let err = true
-  app._router.stack.forEach(r => {
-    if(r.route &&r.route.path){
-      if (req.originalUrl == r.route.path){
-        err=false
-      }
-    }
-  })
-  if(err){
-    logger.warn(req.originalUrl + " es una ruta inexistente")
-  }else{
-    logger.info("Ruta: " + req.originalUrl + "  Metodo: " + req.method)
-  }
-  next()
-}); 
 
 app.get('/', (req, res) => {
     if(req.session.user){
@@ -114,7 +99,7 @@ app.get('/', (req, res) => {
         res.redirect("/login")
     }
     logger.info("Ruta: "+req.url+"  Metodo: GET")
-});
+})
 
 
 app.get("/profile",(req,res)=>{
