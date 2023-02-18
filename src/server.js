@@ -13,10 +13,13 @@ import bcrypt from "bcrypt"
 import flash from "connect-flash"
 import { logger } from "./logger/logger.js"
 import { transporter,adminEmail } from "./messages/email.js"
-import {twilioClient, twilioPhone, adminPhone} from "./messages/wpp.js"
 import { UserModel } from "./models/modelsMongo.js";
 import { envConfig } from "./envConfig.js";
 import mongoose from "mongoose";
+import os from "os"
+import cluster from "cluster";
+import parseArgs from "minimist"
+
 
 const app = express();
 mongoose.set('strictQuery', true);
@@ -77,11 +80,30 @@ passport.deserializeUser((id,done)=>{
   })
 })
 
-const PORT = 8080;
-const server = app.listen(PORT, () => {
-    console.log(`Server listening on port ${PORT}`);
-})
-server.on('error', error => console.log(`Error in server ${error}`));
+//Port of the server
+const optionsMinimist = {default:{p:8080, modo:"fork"},alias:{p:"port"}}
+const argumentsMinimist = parseArgs(process.argv.slice(2),optionsMinimist)
+const PORT = argumentsMinimist.port
+const MODO = argumentsMinimist.modo
+
+//Server listener
+let server
+const numberCpus = os.cpus().length
+if(envConfig.PORT){
+  server = app.listen(envConfig.PORT,()=>logger.info(`Server listening on port ${envConfig.PORT}`))
+}else{
+  if(cluster.isPrimary && MODO=="cluster"){
+    for(let i = 0; i<numberCpus;i++){
+      cluster.fork()
+    }
+    cluster.on("exit",worker=>{
+      logger.info(`Este subproceso (${worker.process.pid}) dejo de funcionar`)
+      cluster.fork()
+    })
+  }else{
+    server = app.listen(PORT,()=>logger.info(`Server listening on port ${PORT} on process ${process.pid}`))
+  }
+}
 
 
 /*

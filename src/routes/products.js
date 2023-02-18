@@ -11,8 +11,12 @@ const productosApi = ContenedorDaoProductos;
 const productsRouter = express.Router();
 
 productsRouter.get('/', async (req, res) => {
+    if(req.session.user){
     const allProducts = await productosApi.getAll()
     res.render("products",{allProducts})
+    }else{
+        res.render("login")
+    }
 })
 
 productsRouter.get('/:id', async (req, res) => {

@@ -43,10 +43,10 @@ class ContenedorFirebase{
     async save(product,bool){
         try {
             if(product.price){
-                let {title,price}=product
+                let {title,price,image}=product
                 price=parseInt(price)
                 let doc = this.collection.doc()
-                await doc.create({title,price})
+                await doc.create({title,price,image})
             }else if(product.timestamp){
                 if(bool){
                     const snapshot =await this.collection.get()

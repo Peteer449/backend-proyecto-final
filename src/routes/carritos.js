@@ -10,13 +10,16 @@ const carritosApi = ContenedorDaoCarts;
 const cartsRouter = express.Router();
 
 cartsRouter.get('/', async (req, res) => {
-    const allProducts = await carritosApi.getAll();
-    let totalPrice=0
-    const allProductsMaped=allProducts.map(e=>e.product.products)
-    allProductsMaped[0].map(i=>totalPrice += parseInt(i.price))
-    let allProductsMapedArray = allProductsMaped[0]
-    console.log(allProductsMapedArray)
-    res.render("carrito",{allProductsMapedArray,totalPrice})
+    if(req.session.user){
+        const allProducts = await carritosApi.getAll();
+        let totalPrice=0
+        const allProductsMaped=allProducts.map(e=>e.product.products)
+        allProductsMaped[0].map(i=>totalPrice += parseInt(i.price))
+        let allProductsMapedArray = allProductsMaped[0]
+        res.render("carrito",{allProductsMapedArray,totalPrice})
+    }else{
+        res.render("login")
+    }
 })
 
 cartsRouter.post('/', async (req, res) => {
@@ -46,7 +49,7 @@ cartsRouter.post("/comprar", async (req, res) => {
             subject: "Nueva compra",
             html: `<div class="d-flex justify-content-evenly">
         <h1>Nuevo pedido de: ${name}  (${mail})</h1>
-        <h3>${allProducts.map(e=>e.product.products)[0].map(j=>j.title)} <h3> ${allProducts.map(e=>e.product.products)[0].map(j=>j.price)}</h3></h3>
+        <h3>${allProducts.map(e=>e.product.products)[0].map(j=>`${j.title} ` + `${j.price}`)}</h3>
       </div>`
         })
         await twilioClient.messages.create({
@@ -54,7 +57,7 @@ cartsRouter.post("/comprar", async (req, res) => {
             to: adminPhone,
             body:`
         Nuevo pedido de: ${name}  (${mail})
-        ${allProducts.map(e=>e.product.products)[0].map(j=>j.title)} ${allProducts.map(e=>e.product.products)[0].map(j=>j.price)}
+        ${allProducts.map(e=>e.product.products)[0].map(j=>`${j.title} ` + `${j.price}`)}
         `
         })
         await twilioClient.messages.create({
