@@ -6,5 +6,4 @@ class CartsDAOArchivos extends ContenedorArchivo{
     }
 }
 
-// const instancia = new CartsDAOArchivos("./carts.txt")
 export {CartsDAOArchivos};

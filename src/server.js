@@ -19,18 +19,22 @@ import mongoose from "mongoose";
 import os from "os"
 import cluster from "cluster";
 import parseArgs from "minimist"
+import {Server} from "socket.io"
+import { normalize, schema } from "normalizr";
+import { ContenedorDaoMessage } from "./daos/index.js";
+
 
 
 const app = express();
-mongoose.set('strictQuery', true);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+app.use(express.static(__dirname+"/public"))
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.engine("handlebars",handlebars.engine())
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 app.set("views",path.join(__dirname,"views"))
 app.set("view engine","handlebars")
-app.use(express.static("./views"))
+mongoose.set('strictQuery', true);
 app.use(cookieParser())
 app.use(flash())
 
@@ -87,23 +91,8 @@ const PORT = argumentsMinimist.port
 const MODO = argumentsMinimist.modo
 
 //Server listener
-let server
-const numberCpus = os.cpus().length
-if(envConfig.PORT){
-  server = app.listen(envConfig.PORT,()=>logger.info(`Server listening on port ${envConfig.PORT}`))
-}else{
-  if(cluster.isPrimary && MODO=="cluster"){
-    for(let i = 0; i<numberCpus;i++){
-      cluster.fork()
-    }
-    cluster.on("exit",worker=>{
-      logger.info(`Este subproceso (${worker.process.pid}) dejo de funcionar`)
-      cluster.fork()
-    })
-  }else{
-    server = app.listen(PORT,()=>logger.info(`Server listening on port ${PORT} on process ${process.pid}`))
-  }
-}
+const server= app.listen(PORT,()=>logger.info(`Server listening on port ${PORT} on process ${process.pid}`))
+
 
 
 /*
@@ -114,32 +103,61 @@ if(envConfig.PORT){
 
 app.get('/', (req, res) => {
     if(req.session.user){
-        let {name,age,phone,image,adress,mail} = req.session.user
-        res.render("home",{name,age,phone,image,adress,mail})
+      res.render("home")
     }
     else{
-        res.redirect("/login")
+      res.redirect("/login")
     }
     logger.info("Ruta: "+req.url+"  Metodo: GET")
 })
 
 
 app.get("/profile",(req,res)=>{
-  res.render("profile")
+  let {name,age,phone,image,adress,mail} = req.session.user
+
+  res.render("profile",{name,age,phone,image,adress,mail})
 })
+
 
 /* 
 
 -------LOGIN LOGOUT-------
 
 */
+//Create websocket server
+const io = new Server(server)
 
+
+
+const authorSchema = new schema.Entity("authors",{},{idAttribute:"email"})//id:con el valor del campo email.
+const messageSchema = new schema.Entity("messages",
+    {
+        author:authorSchema,
+    }
+)
+const chatSchema = new schema.Entity("chats", {
+  messages: [messageSchema]
+})
+const normalizarData = (data)=>{
+  const dataNormalizada = normalize({id:"chatHistory", messages:data}, chatSchema)
+  return dataNormalizada;
+}
+const normalizarMensajes = async()=>{
+  const messages = await ContenedorDaoMessage.getAll()
+  const normalizedMessages = normalizarData(messages)
+  return normalizedMessages
+}
+
+io.on("connection",async (socket)=>{
+  socket.emit("allMessages",await normalizarMensajes())
+  socket.on("chatInput",async data=>{
+    await ContenedorDaoMessage.saveMessage(data)
+    io.sockets.emit("allMessages",await normalizarMensajes())
+  })
+})
 app.get("/login",(req,res)=>{
   if(req.session.username){
     return res.send("Ya estas logueado")
-  }
-  if(req.session.username){
-    res.redirect("/")
   }
   else{
     res.render("login",{error:req.flash('error')[0]})
@@ -180,6 +198,8 @@ app.post("/login",passport.authenticate("loginStrategy",{
   failureFlash: true
 }), async (req,res)=>{
   req.session.user = req.user
+  res.cookie('email',req.user.mail)
+  res.cookie('name',req.user.name)
   res.redirect("/")
 })
 

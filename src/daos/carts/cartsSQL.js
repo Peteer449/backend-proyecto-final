@@ -6,6 +6,5 @@ class CartsDaoSQL extends ContenedorMysql{
     }
 };
 
-//const instancia = new CartsDaoSQL(options.sqliteDB, "carritos")
 
 export {CartsDaoSQL};

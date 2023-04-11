@@ -2,6 +2,7 @@ import { options } from "../config/databaseConfig.js";
 
 let ContenedorDaoProductos;
 let ContenedorDaoCarts;
+let ContenedorDaoMessage;
 
 let databaseType = "firebase";
 
@@ -32,7 +33,8 @@ switch(databaseType){
         const {CartsDaoFirebase} = await import("./carts/cartsFirebase.js")
         ContenedorDaoProductos = new ProductsDaoFirebase(options.firebase,"productos")
         ContenedorDaoCarts = new CartsDaoFirebase(options.firebase,"carritos")
+        ContenedorDaoMessage = new CartsDaoFirebase(options.firebase,"mensajes")
     break;
 };
 
-export {ContenedorDaoProductos,ContenedorDaoCarts};
+export {ContenedorDaoProductos,ContenedorDaoCarts,ContenedorDaoMessage};

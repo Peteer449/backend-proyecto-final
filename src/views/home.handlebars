@@ -1,18 +1,5 @@
-<h1 class="text-center">Bienvenido {{name}}</h4>
-<button class="btn" onclick="location.href='/api/carritos'">Tu carrito</button>
-<hr/>
-<hr/>
-<div class="d-flex justify-content-evenly">
-  <div>
-    <h2>Informacion de la cuenta</h2>
-    <hr/>
-    <h3>Nombre: {{name}}</h3>
-    <h3>Calle: {{adress}}</h3>
-    <h3>Edad: {{age}}</h3>
-    <h3>Telefono: {{phone}}</h3>
-    <h3>Avatar: <img src="{{image}}" height="50"/> </h3>
-    <h3>Mail: {{mail}}</h3>
-    <button class="btn" onclick="location.href='/logout'">Logout</button>
-  </div>
-</div>
-
+<form id="chatForm" >
+    <div id="container" style="height:250px; display:block; overflow-y:scroll; scroll-behavior: smooth;"></div>
+    <input id="chatInput" placeholder="Mensaje"/>
+    <button type="submit">Enviar</button>
+</form>

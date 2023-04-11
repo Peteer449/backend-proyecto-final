@@ -13,10 +13,15 @@ cartsRouter.get('/', async (req, res) => {
     if(req.session.user){
         const allProducts = await carritosApi.getAll();
         let totalPrice=0
-        const allProductsMaped=allProducts.map(e=>e.product.products)
-        allProductsMaped[0].map(i=>totalPrice += parseInt(i.price))
-        let allProductsMapedArray = allProductsMaped[0]
-        res.render("carrito",{allProductsMapedArray,totalPrice})
+        if(allProducts===[]){
+            const allProductsMaped=allProducts.map(e=>e.product.products)
+            allProductsMaped[0].map(i=>totalPrice += parseInt(i.price))
+            let allProductsMapedArray = allProductsMaped[0]
+            res.render("carrito",{allProductsMapedArray,totalPrice})
+        }else{
+            let canBuy = "disabled"
+            res.render("carrito",{undefined,totalPrice,canBuy})
+        }
     }else{
         res.render("login")
     }
@@ -60,12 +65,8 @@ cartsRouter.post("/comprar", async (req, res) => {
         ${allProducts.map(e=>e.product.products)[0].map(j=>`${j.title} ` + `${j.price}`)}
         `
         })
-        await twilioClient.messages.create({
-            from: twilioPhone,
-            to: phone,
-            body: `Pedido recibido`
-        })
-        res.render("compra",{allProducts})
+        await carritosApi.deleteAll()
+        res.render("compra")
     } catch (error) {
         res.send(error)
     }

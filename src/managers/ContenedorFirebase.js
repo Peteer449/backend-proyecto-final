@@ -17,8 +17,8 @@ class ContenedorFirebase{
         try {
             const product =  this.collection.doc(`${id}`);
             const item = await product.get()
-            const response = item.data()
-            return response
+            const response =await item.data()
+            return {id:id,...response}
         } catch (error) {
             return {message:`Hubo un error ${error}`, error:true};
         }
@@ -34,6 +34,7 @@ class ContenedorFirebase{
                     ...elm.data()
                 }
             });
+            results.sort((a,b)=>a.order - b.order)
             return results;
         } catch (error) {
             return [];
@@ -73,11 +74,11 @@ class ContenedorFirebase{
         }
     }
 
-    async updateById(body, id){
+    async updateById(id){
         try {
             const doc = this.collection.doc(`${id}`)
-            let item = await doc.update({body})
-            return {message:`updateaste ${item}`}
+            await doc.update({updated:true})
+            return this.getById(id)
         } catch (error) {
             return {message:`Error al actualizar: no se encontró el id ${id}`};
         }
@@ -95,12 +96,31 @@ class ContenedorFirebase{
 
     async deleteAll(){
         try {
-            await this.collection.doc().deleteAll();
+            await this.collection
+            .get()
+            .then(res => {
+                res.forEach(element => {
+                element.ref.delete();
+                });
+            });
             return {message:"delete successfully"}
         } catch (error) {
             return {message:`Error al borrar todo: ${error}`};
         }
     }
+
+    async saveMessage(message){
+        let allMessages =await this.getAll()
+        let biggerOrder = allMessages.map(e=>e.order)
+        let max = 0
+        biggerOrder.forEach(num=>{
+            if (num > max){
+                max=num
+            }
+        })
+        const addDoc = await this.collection.add({author:message.author,message:message.message,order:max+1})
+        return {id:addDoc._path.segments[1],message}
+    }   
 
 }
 
