@@ -1,1 +1,22 @@
 <h2 class="mx-5 my-2">Compra terminada</h2>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th scope="col">ID</th>
+      <th scope="col">Producto</th>
+      <th scope="col">Precio</th>
+      <th scope="col">Foto</th>
+    </tr>
+  </thead>
+  <tbody id="productsTable">
+    {{#each allProducts}}
+    <tr class="align-middle">
+      <th scope="row">{{this.id}}</th>
+      <td>{{this.title}}</td>
+      <td>{{this.price}}</td>
+      <td><img src={{this.image}} height="100px"/></td>
+    </tr>
+    {{/each}}
+    <h3>Tu total es {{totalPrice}}</h3>
+  </tbody>
+</table>

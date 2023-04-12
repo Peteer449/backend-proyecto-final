@@ -1,23 +1,26 @@
 import express from "express";
-import { ContenedorDaoCarts, ContenedorDaoProductos } from "../daos/index.js";
-import { transporter,adminEmail } from "../messages/email.js"
-import {twilioClient, twilioPhone, adminPhone} from "../messages/wpp.js"
+import { ContenedorDaoCarts, ContenedorDaoProductos } from "../../daos/index.js";
+import { transporter,adminEmail } from "../../messages/email.js"
+import {twilioClient, twilioPhone, adminPhone} from "../../messages/wpp.js"
+import cookieParser from "cookie-parser";
 
 const productosApi = ContenedorDaoProductos;
 const carritosApi = ContenedorDaoCarts;
 
 //router carritos
 const cartsRouter = express.Router();
+cartsRouter.use(cookieParser())
 
 cartsRouter.get('/', async (req, res) => {
     if(req.session.user){
-        const allProducts = await carritosApi.getAll();
+        let cookieEmail=req.cookies.email
+        let allProducts = await carritosApi.getById(`${cookieEmail}`);
+        allProducts = allProducts.products
         let totalPrice=0
-        if(allProducts===[]){
-            const allProductsMaped=allProducts.map(e=>e.product.products)
-            allProductsMaped[0].map(i=>totalPrice += parseInt(i.price))
-            let allProductsMapedArray = allProductsMaped[0]
-            res.render("carrito",{allProductsMapedArray,totalPrice})
+        if(allProducts){
+            allProducts.map(i=>totalPrice += i.price)
+            let allProductsMapedArray = allProducts
+            res.render("carrito",{allProductsMapedArray,totalPrice,undefined,cookieEmail})
         }else{
             let canBuy = "disabled"
             res.render("carrito",{undefined,totalPrice,canBuy})
@@ -29,24 +32,27 @@ cartsRouter.get('/', async (req, res) => {
 
 cartsRouter.post('/', async (req, res) => {
     let {id,title,price,image} = req.body
-    let allProducts = await carritosApi.getAll();
+    let cookieEmail=req.cookies.email
+    let allProducts = await carritosApi.getById(`${cookieEmail}`);
+    allProducts = allProducts.products
     let response
-    if(allProducts.length !== 0){
-        response = await carritosApi.save({ products: [{id,title,price,image}], timestamp: new Date().toLocaleDateString()},true);
+    if(allProducts){
+        response = await carritosApi.save({id,title,price,image},`${cookieEmail}`, new Date().toLocaleDateString(),true);
     }else{
-        response = await carritosApi.save({ products: [{id,title,price,image}], timestamp: new Date().toLocaleDateString()});
+        response = await carritosApi.save({id,title,price,image},`${cookieEmail}`, new Date().toLocaleDateString(),false);
     }
-    allProducts = await carritosApi.getAll();
-    const allProductsMaped=allProducts.map(e=>e.product.products)
+    allProducts = response.products;
     let totalPrice=0
-    allProductsMaped[0].map(i=>totalPrice += parseInt(i.price))
-    let allProductsMapedArray = allProductsMaped[0]
+    allProducts.map(i=>totalPrice += i.price)
+    let allProductsMapedArray = allProducts
     res.render("carrito",{allProductsMapedArray,totalPrice})
 })
 
 cartsRouter.post("/comprar", async (req, res) => {
     let {name,phone,mail} = req.session.user
-    const allProducts = await carritosApi.getAll();
+    let cookieEmail=req.cookies.email
+    let allProducts = await carritosApi.getById(`${cookieEmail}`);
+    allProducts = allProducts.products
     try {
         await transporter.sendMail({
             from: "server app Node",
@@ -54,7 +60,7 @@ cartsRouter.post("/comprar", async (req, res) => {
             subject: "Nueva compra",
             html: `<div class="d-flex justify-content-evenly">
         <h1>Nuevo pedido de: ${name}  (${mail})</h1>
-        <h3>${allProducts.map(e=>e.product.products)[0].map(j=>`${j.title} ` + `${j.price}`)}</h3>
+        <h3>${allProducts.map(j=>`${j.title} ` + `${j.price}`)}</h3>
       </div>`
         })
         await twilioClient.messages.create({
@@ -62,11 +68,13 @@ cartsRouter.post("/comprar", async (req, res) => {
             to: adminPhone,
             body:`
         Nuevo pedido de: ${name}  (${mail})
-        ${allProducts.map(e=>e.product.products)[0].map(j=>`${j.title} ` + `${j.price}`)}
+        ${allProducts.map(j=>`${j.title} ` + `${j.price}`)}
         `
         })
-        await carritosApi.deleteAll()
-        res.render("compra")
+        let totalPrice=0
+        allProducts.map(i=>totalPrice += i.price)
+        await carritosApi.deleteById(`${cookieEmail}`)
+        res.render("compra",{allProducts,totalPrice})
     } catch (error) {
         res.send(error)
     }
@@ -126,6 +134,7 @@ cartsRouter.delete('/:id/productos/:idProd', async (req, res) => {
     if(carritoResponse.error){
         res.json({message:`El carrito con id: ${cartId} no fue encontrado`});
     } else{
+        console.log(carritoResponse)
         const index = carritoResponse.message.products.findIndex(p => p === productId);
         if (index !== -1) {
             carritoResponse.message.products.splice(index, 1);

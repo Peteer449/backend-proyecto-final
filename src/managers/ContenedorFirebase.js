@@ -41,34 +41,34 @@ class ContenedorFirebase{
         }
     }
 
-    async save(product,bool){
+    async save(product,email,timestamp,bool){
         try {
-            if(product.price){
+            if(timestamp){
+                if(bool){
+                    console.log(2)
+                    let {title,price,image,id}=product
+                    price=parseInt(price)
+                    let allProducts = await this.getById(email)
+                    let oldProducts = allProducts.products
+                    let doc = this.collection.doc(email)
+                    oldProducts.push({id,title,price,image})
+                    await doc.update({products:oldProducts,timestamp:timestamp})
+                }else{
+                    console.log(3)
+                    let {title,price,image,id}=product
+                    price=parseInt(price)
+                    let doc = this.collection.doc(email)
+                    await doc.create({products:[{id,title,price,image}],timestamp})
+                }
+            }
+            else{
+                console.log(1)
                 let {title,price,image}=product
                 price=parseInt(price)
                 let doc = this.collection.doc()
                 await doc.create({title,price,image})
-            }else if(product.timestamp){
-                if(bool){
-                    const snapshot =await this.collection.get()
-                    let response = snapshot.docs;
-                    let results = response.map(elm=>{
-                        return {
-                            id:elm.id,
-                            ...elm.data()
-                        }
-                    });
-                    let oldProducts = results[0].product.products
-                    let doc = this.collection.doc(`${results[0].id}`)
-                    let newProduct=product.products[0]
-                    oldProducts.push(newProduct)
-                    await doc.update({product:{products:oldProducts,timestamp:product.timestamp}})
-                }else{
-                    let doc = this.collection.doc()
-                    await doc.create({product})
-                }
             }
-            return this.getAll()
+            return this.getById(email)
         } catch (error) {
             return {message:`Error al guardar: ${error}`};
         }

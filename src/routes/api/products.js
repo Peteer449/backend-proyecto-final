@@ -1,7 +1,6 @@
 import express from "express";
-import { checkAdminRole } from "../middlewares/checkRole.js";
-
-import { ContenedorDaoProductos } from "../daos/index.js";
+import { checkAdminRole } from "../../middlewares/checkRole.js";
+import { ContenedorDaoProductos } from "../../daos/index.js";
 const productosApi = ContenedorDaoProductos;
 
 // products router
