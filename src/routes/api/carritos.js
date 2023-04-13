@@ -17,13 +17,13 @@ cartsRouter.get('/', async (req, res) => {
         let allProducts = await carritosApi.getById(`${cookieEmail}`);
         allProducts = allProducts.products
         let totalPrice=0
-        if(allProducts){
+        if(allProducts && allProducts.length !==0){
             allProducts.map(i=>totalPrice += i.price)
             let allProductsMapedArray = allProducts
-            res.render("carrito",{allProductsMapedArray,totalPrice,undefined,cookieEmail})
+            res.render("carrito",{allProductsMapedArray,totalPrice,cookieEmail})
         }else{
             let canBuy = "disabled"
-            res.render("carrito",{undefined,totalPrice,canBuy})
+            res.render("carrito",{totalPrice,canBuy})
         }
     }else{
         res.render("login")
@@ -45,7 +45,7 @@ cartsRouter.post('/', async (req, res) => {
     let totalPrice=0
     allProducts.map(i=>totalPrice += i.price)
     let allProductsMapedArray = allProducts
-    res.render("carrito",{allProductsMapedArray,totalPrice})
+    res.render("carrito",{allProductsMapedArray,totalPrice,cookieEmail})
 })
 
 cartsRouter.post("/comprar", async (req, res) => {
@@ -127,19 +127,18 @@ cartsRouter.post('/:id/productos', async (req, res) => {
     }
 })
 
-cartsRouter.delete('/:id/productos/:idProd', async (req, res) => {
+cartsRouter.post('/:id/productos/:idProd', async (req, res) => {
     const cartId = req.params.id;
     const productId = req.params.idProd;
     const carritoResponse = await carritosApi.getById(cartId);
     if(carritoResponse.error){
         res.json({message:`El carrito con id: ${cartId} no fue encontrado`});
     } else{
-        console.log(carritoResponse)
-        const index = carritoResponse.message.products.findIndex(p => p === productId);
+        const index = carritoResponse.products.findIndex(p => p.id === productId);
         if (index !== -1) {
-            carritoResponse.message.products.splice(index, 1);
-            await carritosApi.updateById(carritoResponse.message, cartId);
-            res.json({message:"product deleted"});
+            carritoResponse.products.splice(index, 1);
+            await carritosApi.updateById(carritoResponse, cartId);
+            res.redirect("/api/carritos");
         } else{
             res.json({message:`El producto no se encontro en el carrito: ${productId}`});
         }

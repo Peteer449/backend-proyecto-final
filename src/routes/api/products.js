@@ -28,7 +28,8 @@ productsRouter.post('/', checkAdminRole, async (req, res) => {
 
 productsRouter.put('/:id', checkAdminRole, async (req, res) => {
     const productId = req.params.id;
-    const response = await productosApi.updateById(productId);
+    let updated = true
+    const response = await productosApi.updateById(updated,productId);
     res.json(response);
 })
 

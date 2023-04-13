@@ -15,8 +15,7 @@
       <td>{{this.price}}</td>
       <td><img src={{this.image}} height="100px"/></td>
       <td>
-        <form action="/api/carritos/{{cookieEmail}}/productos/{{this.id}}" method="DELETE">
-        <h3>{{cookieEmail}}</h3>
+        <form action="/api/carritos/{{../cookieEmail}}/productos/{{this.id}}" method="post">
           <button type="submit" class="btn btn-danger">Quitar</button>
         </form>
       </td>
@@ -26,5 +25,5 @@
   </tbody>
 </table>
 <form action="/api/carritos/comprar" method="POST">
-  <button type="submit" class="btn btn-success {{canBuy}}">COMPRAR</button>
+  <button type="submit" class="btn btn-success" {{canBuy}}>COMPRAR</button>
 </form>

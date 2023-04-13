@@ -74,10 +74,14 @@ class ContenedorFirebase{
         }
     }
 
-    async updateById(id){
+    async updateById(body,id){
         try {
             const doc = this.collection.doc(`${id}`)
-            await doc.update({updated:true})
+            if(body.products){
+                await doc.update({products:body.products})
+            }else{
+                await doc.update({updated:body})
+            }
             return this.getById(id)
         } catch (error) {
             return {message:`Error al actualizar: no se encontró el id ${id}`};
