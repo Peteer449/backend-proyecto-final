@@ -45,7 +45,6 @@ class ContenedorFirebase{
         try {
             if(timestamp){
                 if(bool){
-                    console.log(2)
                     let {title,price,image,id}=product
                     price=parseInt(price)
                     let allProducts = await this.getById(email)
@@ -54,7 +53,6 @@ class ContenedorFirebase{
                     oldProducts.push({id,title,price,image})
                     await doc.update({products:oldProducts,timestamp:timestamp})
                 }else{
-                    console.log(3)
                     let {title,price,image,id}=product
                     price=parseInt(price)
                     let doc = this.collection.doc(email)
@@ -62,7 +60,6 @@ class ContenedorFirebase{
                 }
             }
             else{
-                console.log(1)
                 let {title,price,image}=product
                 price=parseInt(price)
                 let doc = this.collection.doc()
@@ -124,7 +121,54 @@ class ContenedorFirebase{
         })
         const addDoc = await this.collection.add({author:message.author,message:message.message,order:max+1})
         return {id:addDoc._path.segments[1],message}
-    }   
+    } 
+    
+    async saveOrder(order){
+        try {
+            let {mail,allProducts,totalPrice} = order
+            const products = allProducts
+            const productsId = products.map(e=>e.id)
+            const counters = {};
+            const uniqueValues = [];
+            for (let i = 0; i < productsId.length; i++) {
+                if (counters[productsId[i]]) {
+                    counters[productsId[i]]++;
+                } else {
+                    counters[productsId[i]] = 1;
+                    uniqueValues.push(productsId[i]);
+                }
+            }
+            let productsNoRepeat = []
+            for (let i = 0; i < uniqueValues.length; i++) {
+                const element = uniqueValues[i];
+                productsNoRepeat.push(products.find(e=>e.id===element))
+            }
+            for (let i = 0; i < productsNoRepeat.length; i++) {
+                const element = productsNoRepeat[i];
+                element.quantity = counters[element.id]
+                if(element.quantity > 1){
+                    element.allPrice = element.price * element.quantity
+                }
+            }
+            let allOrders = await this.getAll()
+            let orderId = 0
+            if(allOrders.length >= 1){
+                let biggerOrder = allOrders.map(e=>e.orderId)
+                biggerOrder.forEach(num =>{
+                    if(num > orderId){
+                        orderId = num
+                    }
+                })
+            }
+            let timestamp = new Date().toLocaleString()
+            let doc = this.collection.doc()
+            await doc.create({mail,products:productsNoRepeat,totalPrice,orderId:orderId+1,timestamp})
+            return {message:'order placed'}
+        } catch (error) {
+            return {message:`Error: ${error}`};
+        }
+        
+    }
 
 }
 

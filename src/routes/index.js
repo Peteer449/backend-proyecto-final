@@ -21,9 +21,8 @@ router.get('/', (req, res) => {
 
 
 router.get("/profile",(req,res)=>{
-let {name,age,phone,image,adress,mail} = req.session.user
-
-res.render("profile",{name,age,phone,image,adress,mail})
+  let {name,age,phone,image,adress,mail} = req.session.user
+  res.render("profile",{name,age,phone,image,adress,mail})
 })
 
 router.get("/info",(req,res)=>{

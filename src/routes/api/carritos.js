@@ -1,11 +1,11 @@
 import express from "express";
-import { ContenedorDaoCarts, ContenedorDaoProductos } from "../../daos/index.js";
+import { ContenedorDaoCarts,ContenedorDaoOrders } from "../../daos/index.js";
 import { transporter,adminEmail } from "../../messages/email.js"
 import {twilioClient, twilioPhone, adminPhone} from "../../messages/wpp.js"
 import cookieParser from "cookie-parser";
 
-const productosApi = ContenedorDaoProductos;
 const carritosApi = ContenedorDaoCarts;
+const ordenesApi = ContenedorDaoOrders;
 
 //router carritos
 const cartsRouter = express.Router();
@@ -74,6 +74,7 @@ cartsRouter.post("/comprar", async (req, res) => {
         let totalPrice=0
         allProducts.map(i=>totalPrice += i.price)
         await carritosApi.deleteById(`${cookieEmail}`)
+        await ordenesApi.saveOrder({allProducts,mail,totalPrice})
         res.render("compra",{allProducts,totalPrice})
     } catch (error) {
         res.send(error)
@@ -83,7 +84,8 @@ cartsRouter.post("/comprar", async (req, res) => {
 
 cartsRouter.delete('/:id', async (req, res) => {
     const cartId = req.params.id;
-    res.json(await carritosApi.deleteById(cartId));
+    await carritosApi.deleteById(cartId)
+    res.json({mensaje:`Borraste el carrito de ${cartId}`})
 })
 
 cartsRouter.get('/:id', async (req, res) => {
@@ -92,40 +94,6 @@ cartsRouter.get('/:id', async (req, res) => {
     res.json(response);
 })
 
-cartsRouter.get('/:id/productos', async (req, res) => {
-    const cartId = req.params.id;
-    const carritoResponse = await carritosApi.getById(cartId);
-    if(carritoResponse.error){
-        res.json(carritoResponse);
-    } else{
-        const getData = async()=>{
-            const products = await Promise.all(carritoResponse.message.products.map(async(element) => {
-                const productResponse = await productosApi.getById(element);
-                return productResponse.message
-            }));
-            res.json({products: products});
-        }
-        getData();
-    }
-})
-
-cartsRouter.post('/:id/productos', async (req, res) => {
-    const cartId = req.params.id;
-    const productId = req.body.id;
-    const carritoResponse = await carritosApi.getById(cartId);
-    if(carritoResponse.error){
-        res.json({message:`El carrito con id: ${cartId} no fue encontrado`});
-    } else{
-        const productoResponse = await productosApi.getById(productId);
-        if(productoResponse.error){
-            res.json(productoResponse);
-        } else{
-            carritoResponse.message.products.push(productoResponse.message.id);
-            const response = await carritosApi.updateById(carritoResponse.message, cartId);
-            res.json({message:"product added"});
-        }
-    }
-})
 
 cartsRouter.post('/:id/productos/:idProd', async (req, res) => {
     const cartId = req.params.id;

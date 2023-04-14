@@ -1,5 +1,13 @@
-<form id="chatForm" >
-    <div id="container" style="height:250px; display:block; overflow-y:scroll; scroll-behavior: smooth;"></div>
-    <input id="chatInput" placeholder="Mensaje"/>
-    <button type="submit">Enviar</button>
-</form>
+<div class="d-flex justify-content-evenly">
+    <form id="chatForm" >
+        <div id="container" style="height:250px; display:block; overflow-y:scroll; scroll-behavior: smooth;"></div>
+        <input id="chatInput" placeholder="Mensaje"/>
+        <button type="submit">Enviar</button>
+    </form>
+    <form action="/api/productos"  method="POST" class="d-flex flex-column" id="productForm">
+        Titulo: <input type="text" name="title" id="title"/> 
+        Precio:<input type="number" name="price" id="price"/>
+        Foto: <input type="text" name="image" id="image"/>
+        <button>Enviar</button>
+    </form>
+</div>

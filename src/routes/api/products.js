@@ -1,5 +1,4 @@
 import express from "express";
-import { checkAdminRole } from "../../middlewares/checkRole.js";
 import { ContenedorDaoProductos } from "../../daos/index.js";
 const productosApi = ContenedorDaoProductos;
 
@@ -21,23 +20,24 @@ productsRouter.get('/:id', async (req, res) => {
     res.json(allProducts)
 })
 
-productsRouter.post('/', checkAdminRole, async (req, res) => {
-    const response = await productosApi.save(req.body);
-    res.json(response)
+productsRouter.post('/', async (req, res) => {
+    await productosApi.save(req.body);
+    const allProducts = await productosApi.getAll()
+    res.render("products",{allProducts})
 })
 
-productsRouter.put('/:id', checkAdminRole, async (req, res) => {
+productsRouter.put('/:id', async (req, res) => {
     const productId = req.params.id;
     let updated = true
     const response = await productosApi.updateById(updated,productId);
     res.json(response);
 })
 
-productsRouter.delete('/:id', checkAdminRole, async (req, res) => {
+productsRouter.delete('/:id', async (req, res) => {
     const productId = req.params.id;
     await productosApi.deleteById(productId);
     const allProducts = await productosApi.getAll()
-    res.render("products",{allProducts})
+    res.json(allProducts)
 })
 
 export {productsRouter}
