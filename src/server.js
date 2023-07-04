@@ -139,5 +139,3 @@ io.on("connection",async (socket)=>{
     io.sockets.emit("allMessages",await normalizarMensajes())
   })
 })
-
-module.exports = app;
